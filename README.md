@@ -1,64 +1,79 @@
-# 🚀 Complaint Management System (DAA-Based)
+# 🚀 Smart Complaint Management System (DAA-Based)
+
+![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-00758F?style=for-the-badge&logo=mysql&logoColor=white)
+![DAA](https://img.shields.io/badge/DAA-Algorithms-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/Project-Completed-brightgreen?style=for-the-badge)
+
+---
 
 ## 📌 Overview
-The Complaint Management System is a Java-based desktop application built using Java Swing + MySQL, enhanced with Design and Analysis of Algorithms (DAA).
+A Java Swing + MySQL based Complaint Management System enhanced with **Design and Analysis of Algorithms (DAA)**.
 
-It provides:
-- Complaint submission
-- Priority-based processing
-- Trend analysis
-- Duplicate detection
-- Efficient complaint handling
+### ✨ What it does:
+- 📥 Submit complaints
+- ⚡ Priority-based processing
+- 🔍 Duplicate detection
+- 📊 Trend analysis
+- 🧠 Smart algorithm-driven system
 
---------------------------------------------------
+---
 
 ## 🎯 Objective
-- Optimize complaint handling using DAA
-- Reduce manual effort
-- Improve efficiency
-- Demonstrate real-world algorithm usage
+- Apply DAA in real-world system  
+- Improve complaint resolution efficiency  
+- Reduce manual work  
+- Build scalable architecture  
 
---------------------------------------------------
+---
 
 ## 🧠 DAA Concepts Used
 
-- Greedy Algorithm → Priority calculation
-- Priority Queue (Heap) → Process highest priority first
-- HashMap → Fast lookup (O(1))
-- Rabin-Karp → Duplicate detection
-- Top-K Algorithm → Find most important complaints
-- Sliding Window → Trend analysis
+| Concept | Implementation |
+|--------|--------------|
+| Greedy | Priority calculation |
+| Heap (Priority Queue) | Process highest priority |
+| HashMap | O(1) lookup |
+| Rabin-Karp | Duplicate detection |
+| Top-K | Important complaints |
+| Sliding Window | Trend analysis |
 
---------------------------------------------------
+---
 
-## 🔥 Key Features
+## 🔥 Features
 
-1. Priority-Based System
-   Priority = (Severity × 0.5) + (Urgency × 0.3) + (Impact × 0.2)
+### ✅ Priority System
+Priority = (Severity × 0.5) + (Urgency × 0.3) + (Impact × 0.2)
 
-2. Smart Processing
-   Uses priority queue for fast handling
+### 🔍 Duplicate Detection
+Uses Rabin-Karp hashing
 
-3. Duplicate Detection
-   Uses Rabin-Karp algorithm
+### 📊 Trend Analysis
+Filter complaints by last N days
 
-4. Top K Complaints
-   Finds highest priority complaints
+### 🥇 Top K Complaints
+Heap-based optimization
 
-5. Trend Analysis
-   Filters complaints from last N days
+### 👥 Role-Based Access
+- User → Submit
+- Team → Resolve
+- Admin → Manage
 
-6. Fast Search
-   Uses HashMap for instant lookup
+---
 
-7. Role-Based System
-   - User → Submit complaints
-   - Team → Resolve complaints
-   - Admin → Manage system
+## 🏗️ Architecture
 
---------------------------------------------------
+UI (Swing)
+↓
+Service (DAA Logic)
+↓
+DAO (Database)
+↓
+MySQL
 
-## 🏗️ Project Structure
+---
+
+## 📁 Project Structure
 
 src/
  ├── dao/
@@ -67,71 +82,53 @@ src/
  ├── ui/
  └── util/
 
---------------------------------------------------
+---
 
 ## ⚙️ Tech Stack
-
 - Java
 - Swing
 - MySQL
 - JDBC
 
---------------------------------------------------
+---
 
-## 🛠️ How to Run
+## 🛠️ Setup
 
-1. Install Java & MySQL
-2. Create database: daa_complaint_system
-3. Update DBConnection.java credentials
-4. Run LoginUI.java
+### Database
+CREATE DATABASE daa_complaint_system;
 
---------------------------------------------------
+### Run
+Run LoginUI.java
+
+---
 
 ## 🔑 Sample Users
+admin / 123 → ADMIN  
+user1 / 123 → USER  
 
-admin / 123 → ADMIN
-user1 / 123 → USER
-IT / 123 → TEAM
-
---------------------------------------------------
+---
 
 ## 🚀 Workflow
 
-User:
-- Submit complaint
-- Priority calculated
+User → Submit complaint  
+Admin → Analyze + manage  
+Team → Resolve  
 
-Admin:
-- View complaints
-- Analyze trends
-- Detect duplicates
-
-Team:
-- View assigned complaints
-- Update status
-
---------------------------------------------------
+---
 
 ## 📈 Future Scope
+- Web app (Spring Boot)
+- AI classification
+- Dashboard
 
-- Web version
-- AI-based classification
-- Dashboard analytics
-- Cloud deployment
+---
 
---------------------------------------------------
+## 👨‍💻 Authors
+Shubham Kumar  
+Parikshit Singh  
+Jahnvi Sharma  
+Avni Negi  
 
-## 👨‍💻 Author
+---
 
-Shubham Kumar(Team Lead)
-Parikshit Singh Panwar
-Jahnvi Sharma
-Avni Negi
-
-
-
---------------------------------------------------
-
-## ⭐ GitHub
-
-Give a star if you like this project!
+## ⭐ Star the repo if you like it!
