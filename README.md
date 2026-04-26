@@ -41,9 +41,9 @@ It focuses on:
 | 👩‍💻 Member    | Avni Negi              |
 | 👩‍💻 Member    | Jahnvi Sharma          |
 
-🎓 **Institution:** Graphic Era Deemed to be University, Dehradun
-📘 **Course:** 4th Semester DAA (PBL)
-👨‍🏫 **Mentor:** Kartikey Arora Sir
+* 🎓 **Institution:** Graphic Era Deemed to be University, Dehradun
+* 📘 **Course:** 4th Semester DAA (PBL)
+* 👨‍🏫 **Mentor:** Kartikey Arora Sir
 
 ---
 
