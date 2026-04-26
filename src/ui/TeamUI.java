@@ -1,53 +1,58 @@
 package ui;
 
+import dao.ComplaintDAO;
+import model.Complaint;
+import model.User;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
-import dao.ComplaintDAO;
-import model.Complaint;
-import model.User;
-
 public class TeamUI extends JFrame {
 
     JTable table;
     DefaultTableModel model;
-    JTextField searchField;
     JComboBox<String> statusBox;
+    JTextField searchField;
 
     public TeamUI(User user) {
 
         setTitle("Team Dashboard - " + user.getRole());
-        setSize(1000, 600);
+        setSize(1050, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
 
-        // 🔝 Title
-        JLabel heading = new JLabel("Team Dashboard", SwingConstants.CENTER);
-        heading.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        heading.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-        add(heading, BorderLayout.NORTH);
+        JPanel main = new JPanel(new BorderLayout());
+        main.setBackground(Theme.BG);
+
+        // 🔝 HEADER
+        JLabel title = new JLabel("Team Dashboard - " + user.getRole(), SwingConstants.CENTER);
+        title.setFont(Theme.titleFont());
+        title.setForeground(Theme.TEXT);
+        title.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        main.add(title, BorderLayout.NORTH);
 
         // 📋 TABLE
-        String[] cols = {"ID","Title","Category","Priority","Status","Created","Updated"};
-        model = new DefaultTableModel(cols, 0);
+        model = new DefaultTableModel(
+                new String[]{"ID","Title","Category","Priority","Status","Created","Updated"}, 0
+        );
 
-        table = new JTable(model) {
-            public boolean isCellEditable(int r, int c) {
-                return false;
-            }
-        };
+        table = new JTable(model);
+        table.setRowHeight(28);
+        table.setFont(Theme.normalFont());
 
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        table.getTableHeader().setFont(Theme.labelFont());
+        table.getTableHeader().setBackground(new Color(60,60,70));
+        table.getTableHeader().setForeground(Color.WHITE);
 
-        // 🔘 BOTTOM PANEL
+        main.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        // 🔘 CONTROL PANEL
         JPanel panel = new JPanel();
+        panel.setBackground(Theme.PANEL);
 
-        String[] statuses = {"IN_PROGRESS", "RESOLVED", "ESCALATED"};
-        statusBox = new JComboBox<>(statuses);
-
+        statusBox = new JComboBox<>(new String[]{"IN_PROGRESS","RESOLVED","ESCALATED"});
         JButton updateBtn = new JButton("Update Status");
         JButton refreshBtn = new JButton("Refresh");
 
@@ -61,97 +66,95 @@ public class TeamUI extends JFrame {
         panel.add(searchField);
         panel.add(searchBtn);
 
-        add(panel, BorderLayout.SOUTH);
+        main.add(panel, BorderLayout.SOUTH);
 
-        ComplaintDAO dao = new ComplaintDAO();
+        add(main);
 
         // 🔄 LOAD FUNCTION
-        Runnable loadData = () -> {
-            try {
-                model.setRowCount(0);
+        Runnable load = () -> loadData(user);
 
-                List<Complaint> list = dao.getComplaintsByTeam(user.getRole());
-
-                for (Complaint c : list) {
-                    model.addRow(new Object[]{
-                            c.getId(),
-                            c.getTitle(),
-                            c.getCategory(),
-                            c.getPriority(),
-                            c.getStatus(),
-                            c.getCreatedAt(),
-                            c.getUpdatedAt()
-                    });
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        };
-
-        // Initial load
-        loadData.run();
+        load.run();
 
         // 🔄 REFRESH
-        refreshBtn.addActionListener(e -> loadData.run());
+        refreshBtn.addActionListener(e -> load.run());
 
         // 🔘 UPDATE STATUS
-        updateBtn.addActionListener(e -> {
-
-            int row = table.getSelectedRow();
-
-            if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Select a complaint first!");
-                return;
-            }
-
-            int id = (int) model.getValueAt(row, 0);
-            String status = statusBox.getSelectedItem().toString();
-
-            dao.updateStatus(id, status);
-
-            JOptionPane.showMessageDialog(this, "Status Updated!");
-
-            loadData.run(); // 🔥 auto refresh
-        });
+        updateBtn.addActionListener(e -> updateStatus(load));
 
         // 🔍 SEARCH
-        searchBtn.addActionListener(e -> {
-
-            try {
-                String title = searchField.getText().trim();
-
-                if (title.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Enter title to search!");
-                    return;
-                }
-
-                model.setRowCount(0);
-
-                List<Complaint> list = dao.searchByTitle(title, user.getRole());
-
-                if (list.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "No results found!");
-                    return;
-                }
-
-                for (Complaint c : list) {
-                    model.addRow(new Object[]{
-                            c.getId(),
-                            c.getTitle(),
-                            c.getCategory(),
-                            c.getPriority(),
-                            c.getStatus(),
-                            c.getCreatedAt(),
-                            c.getUpdatedAt()
-                    });
-                }
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
+        searchBtn.addActionListener(e -> search(user));
 
         setVisible(true);
+    }
+
+    // 🔄 LOAD DATA
+    private void loadData(User user) {
+        try {
+            model.setRowCount(0);
+
+            List<Complaint> list =
+                    new ComplaintDAO().getComplaintsByTeam(user.getRole());
+
+            for (Complaint c : list) {
+                model.addRow(new Object[]{
+                        c.getId(),
+                        c.getTitle(),
+                        c.getCategory(),
+                        c.getPriority(),
+                        c.getStatus(),
+                        c.getCreatedAt(),
+                        c.getUpdatedAt()
+                });
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 🔘 UPDATE STATUS
+    private void updateStatus(Runnable reload) {
+
+        int row = table.getSelectedRow();
+
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Select a complaint!");
+            return;
+        }
+
+        int id = (int) model.getValueAt(row, 0);
+        String status = statusBox.getSelectedItem().toString();
+
+        new ComplaintDAO().updateStatus(id, status);
+
+        JOptionPane.showMessageDialog(this, "Status Updated!");
+        reload.run();
+    }
+
+    // 🔍 SEARCH
+    private void search(User user) {
+        try {
+            model.setRowCount(0);
+
+            String text = searchField.getText();
+
+            List<Complaint> list =
+                    new ComplaintDAO().searchByTitle(text, user.getRole());
+
+            for (Complaint c : list) {
+                model.addRow(new Object[]{
+                        c.getId(),
+                        c.getTitle(),
+                        c.getCategory(),
+                        c.getPriority(),
+                        c.getStatus(),
+                        c.getCreatedAt(),
+                        c.getUpdatedAt()
+                });
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
