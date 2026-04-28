@@ -36,7 +36,12 @@ public class TeamUI extends JFrame {
         // 📋 TABLE
         model = new DefaultTableModel(
                 new String[]{"ID","Title","Category","Priority","Status","Created","Updated"}, 0
-        );
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         table = new JTable(model);
         table.setRowHeight(28);

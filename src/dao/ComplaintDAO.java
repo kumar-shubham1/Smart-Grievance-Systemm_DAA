@@ -38,7 +38,7 @@ public class ComplaintDAO {
 
         List<Complaint> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM complaints ORDER BY priority DESC";
+        String sql = "SELECT * FROM complaints ORDER BY created_at DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);

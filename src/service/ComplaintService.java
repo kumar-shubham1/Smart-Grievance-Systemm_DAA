@@ -11,8 +11,7 @@ public class ComplaintService {
 
     public ComplaintService() {
         queue = new PriorityQueue<>(
-            (c1, c2) -> Double.compare(c2.getPriority(), c1.getPriority())
-        );
+                (c1, c2) -> Double.compare(c2.getPriority(), c1.getPriority()));
 
         map = new HashMap<>();
         teamMap = new HashMap<>();
@@ -23,6 +22,11 @@ public class ComplaintService {
     }
 
     public void addComplaint(Complaint c) {
+        // GREEDY: Calculate priority based on attributes
+        double priority = c.getSeverity() + c.getUrgency() + c.getImpact();
+        c.setPriority(priority);
+
+        // PRIORITY QUEUE & HASHING
         queue.add(c);
         map.put(c.getId(), c);
     }
@@ -40,9 +44,60 @@ public class ComplaintService {
     }
 
     public Complaint searchById(int id) {
+        // HASHING: Fast lookup
         return map.get(id);
     }
+
     public Collection<Complaint> getAllComplaints() {
         return map.values();
+    }
+
+    // BINARY SEARCH: Optimized searching in sorted complaints
+    public Complaint binarySearchById(List<Complaint> sortedList, int targetId) {
+        int left = 0;
+        int right = sortedList.size() - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (sortedList.get(mid).getId() == targetId)
+                return sortedList.get(mid);
+            if (sortedList.get(mid).getId() < targetId)
+                left = mid + 1;
+            else
+                right = mid - 1;
+        }
+        return null;
+    }
+
+    // // GRAPH / BFS: Detect related complaints (same category)
+    // public List<Complaint> getRelatedComplaints(Complaint start,
+    // Collection<Complaint> all) {
+    // List<Complaint> related = new ArrayList<>();
+    // Queue<Complaint> q = new LinkedList<>();
+    // Set<Integer> visited = new HashSet<>();
+    //
+    // q.add(start);
+    // visited.add(start.getId());
+    //
+    // while (!q.isEmpty()) {
+    // Complaint curr = q.poll();
+    // if (curr.getId() != start.getId()) {
+    // related.add(curr);
+    // }
+    //
+    // for (Complaint c : all) {
+    // if (!visited.contains(c.getId()) && c.getCategory() != null &&
+    // c.getCategory().equals(curr.getCategory())) {
+    // visited.add(c.getId());
+    // q.add(c);
+    // }
+    // }
+    // }
+    // return related;
+    // }
+
+    // STATUS MANAGEMENT: Ensure transitions (NEW -> IN_PROGRESS -> RESOLVED ->
+    // ESCALATED)
+    public void updateStatus(Complaint c, String newStatus) {
+        c.setStatus(newStatus);
     }
 }

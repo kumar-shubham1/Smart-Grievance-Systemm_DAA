@@ -133,7 +133,12 @@ public class UserUI extends JFrame {
 
         // 📋 TABLE
         String[] cols = {"ID","Title","Category","Priority","Status","Created","Updated"};
-        tableModel = new DefaultTableModel(cols, 0);
+        tableModel = new DefaultTableModel(cols, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         table = new JTable(tableModel);
 
         table.setRowHeight(28);
