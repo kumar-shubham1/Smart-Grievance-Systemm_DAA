@@ -184,7 +184,8 @@ public class UserUI extends JFrame {
             double priority = (severity * 0.5) + (urgency * 0.3) + (impact * 0.2);
             c.setPriority(priority);
 
-            new ComplaintDAO().insertComplaint(c);
+            String username = System.getProperty("user.name");
+            new ComplaintDAO().insertComplaint(c, username);
 
             JOptionPane.showMessageDialog(this, "Complaint Submitted!");
 

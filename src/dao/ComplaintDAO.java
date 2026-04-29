@@ -8,9 +8,9 @@ import java.util.List;
 public class ComplaintDAO {
 
     // 🔹 INSERT
-    public boolean insertComplaint(Complaint c) {
+    public boolean insertComplaint(Complaint c, String username) {
 
-        String sql = "INSERT INTO complaints(title, description, category, severity, urgency, impact, priority, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO complaints(title, description, category, severity, urgency, impact, priority, status, username) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -23,6 +23,7 @@ public class ComplaintDAO {
             ps.setInt(6, c.getImpact());
             ps.setDouble(7, c.getPriority());
             ps.setString(8, "NEW");
+            ps.setString(9, username);
 
             return ps.executeUpdate() > 0;
 
@@ -37,15 +38,29 @@ public class ComplaintDAO {
     public List<Complaint> getComplaintsByUser() {
 
         List<Complaint> list = new ArrayList<>();
+        
+        boolean isAdmin = false;
+        for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+            if (e.getClassName().endsWith("AdminUI")) {
+                isAdmin = true;
+                break;
+            }
+        }
 
-        String sql = "SELECT * FROM complaints ORDER BY created_at DESC";
+        String sql = isAdmin ? "SELECT * FROM complaints ORDER BY created_at DESC" 
+                             : "SELECT * FROM complaints WHERE username=? ORDER BY created_at DESC";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            while (rs.next()) {
-                list.add(mapRow(rs));
+            if (!isAdmin) {
+                ps.setString(1, System.getProperty("user.name"));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
             }
 
         } catch (Exception e) {
@@ -53,6 +68,25 @@ public class ComplaintDAO {
         }
 
         return list;
+    }
+
+    // 🔹 GET BY ID
+    public Complaint getComplaintById(int id) {
+        String sql = "SELECT * FROM complaints WHERE id=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     // 🔹 DELETE

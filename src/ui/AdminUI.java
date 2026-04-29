@@ -74,16 +74,16 @@ public class AdminUI extends JFrame {
                     int row = table.getSelectedRow();
                     if (row != -1) {
                         int id = (int) model.getValueAt(row, 0);
-                        List<Complaint> list = new ComplaintDAO().getComplaintsByUser();
-                        String desc = "Description not found";
-                        for (Complaint c : list) {
-                            if (c.getId() == id) {
-                                desc = c.getDescription();
-                                break;
-                            }
+
+                        ComplaintDAO dao = new ComplaintDAO();
+                        Complaint c = dao.getComplaintById(id);
+
+                        if (c != null && c.getDescription() != null) {
+                            JOptionPane.showMessageDialog(AdminUI.this, c.getDescription(), "Complaint Description",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(AdminUI.this, "Description not found");
                         }
-                        JOptionPane.showMessageDialog(AdminUI.this, desc, "Complaint Description",
-                                JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
             }
@@ -184,37 +184,42 @@ public class AdminUI extends JFrame {
     }
 
     private void checkDuplicates() {
+        ComplaintDAO dao = new ComplaintDAO();
+
+        // get selected row
         int row = table.getSelectedRow();
         if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a complaint to check for duplicates.");
+            JOptionPane.showMessageDialog(this, "Select a complaint first");
             return;
         }
 
+        // get ID
         int id = (int) model.getValueAt(row, 0);
-        List<Complaint> list = new ComplaintDAO().getComplaintsByUser();
-        Complaint target = null;
 
-        for (Complaint c : list) {
-            if (c.getId() == id) {
-                target = c;
-                break;
-            }
-        }
+        // fetch FULL complaint from DB
+        Complaint target = dao.getComplaintById(id);
+
+        // fetch ALL complaints from DB
+        List<Complaint> all = dao.getComplaintsByUser();
 
         if (target != null) {
-            RabinKarpService rk = new RabinKarpService();
-            List<Complaint> duplicates = rk.getDuplicates(target, list);
+            RabinKarpService service = new RabinKarpService();
+            List<Complaint> duplicates = service.getDuplicates(target, all);
 
-            if (!duplicates.isEmpty()) {
-                model.setRowCount(0);
+            model.setRowCount(0);
+
+            if (duplicates.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No duplicate complaints found");
+            } else {
                 for (Complaint c : duplicates) {
-                    model.addRow(new Object[] {
-                            c.getId(), c.getTitle(),
-                            c.getCategory(), c.getPriority(), c.getStatus()
+                    model.addRow(new Object[]{
+                            c.getId(),
+                            c.getTitle(),
+                            c.getCategory(),
+                            c.getPriority(),
+                            c.getStatus()
                     });
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, "No duplicate complaints found");
             }
         }
     }

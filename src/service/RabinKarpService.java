@@ -7,10 +7,37 @@ public class RabinKarpService {
 
     private final int PRIME = 101;
 
-    private String normalize(String s) {
-        if (s == null)
+    private String normalize(String text) {
+        if (text == null)
             return "";
-        return s.toLowerCase().trim().replaceAll("\\s+", " ");
+        return text.toLowerCase()
+                .replaceAll("[^a-z0-9 ]", "")
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
+
+    private boolean isSimilar(String a, String b) {
+        String[] wordsA = a.split(" ");
+        String[] wordsB = b.split(" ");
+
+        Set<String> setA = new HashSet<>(Arrays.asList(wordsA));
+        Set<String> setB = new HashSet<>(Arrays.asList(wordsB));
+
+        int common = 0;
+
+        for (String word : setA) {
+            if (setB.contains(word)) {
+                common++;
+            }
+        }
+
+        int minSize = Math.min(setA.size(), setB.size());
+        
+        if (minSize == 0) return false;
+
+        double similarity = (double) common / minSize;
+
+        return similarity >= 0.6; // 60% similarity threshold
     }
 
     public List<Complaint> getDuplicates(Complaint target, Collection<Complaint> complaints) {
@@ -18,19 +45,18 @@ public class RabinKarpService {
         if (target == null || target.getTitle() == null || target.getDescription() == null)
             return duplicates;
 
-        String normalizedTarget = normalize(target.getTitle() + " " + target.getDescription());
-        long hash = computeHash(normalizedTarget);
+        String base = normalize(target.getTitle() + " " + target.getDescription());
 
         for (Complaint c : complaints) {
             if (c.getId() == target.getId())
                 continue;
+
             if (c.getTitle() == null || c.getDescription() == null)
                 continue;
 
-            String normalizedText = normalize(c.getTitle() + " " + c.getDescription());
+            String current = normalize(c.getTitle() + " " + c.getDescription());
 
-            if (computeHash(normalizedText) == hash &&
-                    (normalizedText.contains(normalizedTarget) || normalizedTarget.contains(normalizedText))) {
+            if (isSimilar(base, current)) {
                 duplicates.add(c);
             }
         }
