@@ -8,24 +8,29 @@ public class RabinKarpService {
     private final int PRIME = 101;
 
     private String normalize(String s) {
-        if (s == null) return "";
+        if (s == null)
+            return "";
         return s.toLowerCase().trim().replaceAll("\\s+", " ");
     }
 
     public List<Complaint> getDuplicates(Complaint target, Collection<Complaint> complaints) {
         List<Complaint> duplicates = new ArrayList<>();
-        if (target == null || target.getDescription() == null) return duplicates;
+        if (target == null || target.getTitle() == null || target.getDescription() == null)
+            return duplicates;
 
-        String pattern = normalize(target.getDescription());
-        long hash = computeHash(pattern);
+        String normalizedTarget = normalize(target.getTitle() + " " + target.getDescription());
+        long hash = computeHash(normalizedTarget);
 
         for (Complaint c : complaints) {
-            if (c.getId() == target.getId()) continue;
-            if (c.getDescription() == null) continue;
+            if (c.getId() == target.getId())
+                continue;
+            if (c.getTitle() == null || c.getDescription() == null)
+                continue;
 
-            String text = normalize(c.getDescription());
+            String normalizedText = normalize(c.getTitle() + " " + c.getDescription());
 
-            if (computeHash(text) == hash && text.equals(pattern)) {
+            if (computeHash(normalizedText) == hash &&
+                    (normalizedText.contains(normalizedTarget) || normalizedTarget.contains(normalizedText))) {
                 duplicates.add(c);
             }
         }
@@ -40,6 +45,7 @@ public class RabinKarpService {
         }
         return h;
     }
+
     public boolean containsPattern(String text, String pattern) {
 
         text = text.toLowerCase();
