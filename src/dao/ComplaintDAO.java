@@ -8,9 +8,9 @@ import java.util.List;
 public class ComplaintDAO {
 
     // 🔹 INSERT
-    public boolean insertComplaint(Complaint c, String username) {
+    public boolean insertComplaint(Complaint c, int userId) {
 
-        String sql = "INSERT INTO complaints(title, description, category, severity, urgency, impact, priority, status, username) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO complaints(title, description, category, severity, urgency, impact, priority, status, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -23,7 +23,7 @@ public class ComplaintDAO {
             ps.setInt(6, c.getImpact());
             ps.setDouble(7, c.getPriority());
             ps.setString(8, "NEW");
-            ps.setString(9, username);
+            ps.setInt(9, userId);
 
             return ps.executeUpdate() > 0;
 
@@ -36,25 +36,25 @@ public class ComplaintDAO {
 
     // 🔹 GET ALL FOR USER
     public List<Complaint> getComplaintsByUser() {
+        return getComplaintsByUser(-1);
+    }
+
+    public List<Complaint> getComplaintsByUser(int userId) {
 
         List<Complaint> list = new ArrayList<>();
-        
-        boolean isAdmin = false;
-        for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
-            if (e.getClassName().endsWith("AdminUI")) {
-                isAdmin = true;
-                break;
-            }
-        }
 
-        String sql = isAdmin ? "SELECT * FROM complaints ORDER BY created_at DESC" 
-                             : "SELECT * FROM complaints WHERE username=? ORDER BY created_at DESC";
+        String sql;
+        if (userId == -1) {
+            sql = "SELECT * FROM complaints ORDER BY created_at DESC";
+        } else {
+            sql = "SELECT * FROM complaints WHERE user_id=? ORDER BY created_at DESC";
+        }
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            if (!isAdmin) {
-                ps.setString(1, System.getProperty("user.name"));
+            if (userId != -1) {
+                ps.setInt(1, userId);
             }
 
             try (ResultSet rs = ps.executeQuery()) {

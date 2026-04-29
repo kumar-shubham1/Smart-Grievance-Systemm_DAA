@@ -2,6 +2,7 @@ package ui;
 
 import dao.UserDAO;
 import model.User;
+import util.AppContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -91,6 +92,7 @@ public class LoginUI extends JFrame {
         User u = new UserDAO().login(user, pass);
 
         if (u != null) {
+            AppContext.currentUserId = u.getId();
             dispose();
 
             switch (u.getRole()) {

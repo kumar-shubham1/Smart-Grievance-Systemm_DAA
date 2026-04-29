@@ -212,7 +212,7 @@ public class AdminUI extends JFrame {
                 JOptionPane.showMessageDialog(this, "No duplicate complaints found");
             } else {
                 for (Complaint c : duplicates) {
-                    model.addRow(new Object[]{
+                    model.addRow(new Object[] {
                             c.getId(),
                             c.getTitle(),
                             c.getCategory(),

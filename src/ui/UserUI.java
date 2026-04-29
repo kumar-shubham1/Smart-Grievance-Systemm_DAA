@@ -2,6 +2,7 @@ package ui;
 
 import dao.ComplaintDAO;
 import model.Complaint;
+import util.AppContext;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -184,8 +185,7 @@ public class UserUI extends JFrame {
             double priority = (severity * 0.5) + (urgency * 0.3) + (impact * 0.2);
             c.setPriority(priority);
 
-            String username = System.getProperty("user.name");
-            new ComplaintDAO().insertComplaint(c, username);
+            new ComplaintDAO().insertComplaint(c, AppContext.currentUserId);
 
             JOptionPane.showMessageDialog(this, "Complaint Submitted!");
 
@@ -251,7 +251,7 @@ public class UserUI extends JFrame {
         try {
             tableModel.setRowCount(0);
 
-            List<Complaint> list = new ComplaintDAO().getComplaintsByUser();
+            List<Complaint> list = new ComplaintDAO().getComplaintsByUser(AppContext.currentUserId);
 
             for (Complaint c : list) {
                 tableModel.addRow(new Object[]{
