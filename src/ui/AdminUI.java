@@ -45,6 +45,28 @@ public class AdminUI extends JFrame {
         table.setRowHeight(28);
         table.setFont(Theme.normalFont());
 
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(
+                    JTable table, Object value,
+                    boolean isSelected, boolean hasFocus,
+                    int row, int column) {
+
+                Component c = super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+
+                String status = (String) table.getValueAt(row, 4);
+
+                if ("REOPENED".equals(status)) {
+                    c.setBackground(new Color(255, 200, 200)); // light red
+                } else {
+                    c.setBackground(isSelected ? table.getSelectionBackground() : Color.WHITE);
+                }
+
+                return c;
+            }
+        });
+
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -113,6 +135,14 @@ public class AdminUI extends JFrame {
                     c.getStatus()
             });
         }
+
+        int count = 0;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if ("REOPENED".equals(model.getValueAt(i, 4))) {
+                count++;
+            }
+        }
+        setTitle("Admin Dashboard (Reopened: " + count + ")");
     }
 
     private void showTopK() {
@@ -172,16 +202,19 @@ public class AdminUI extends JFrame {
         }
 
         if (target != null) {
-            List<Complaint> others = new ArrayList<>(list);
-            others.removeIf(c -> c.getId() == id);
-
             RabinKarpService rk = new RabinKarpService();
-            boolean isDup = rk.isDuplicate(target.getDescription(), others); // RABIN-KARP: check duplicate
+            List<Complaint> duplicates = rk.getDuplicates(target, list);
 
-            if (isDup) {
-                JOptionPane.showMessageDialog(this, "Duplicate found based on description!");
+            if (!duplicates.isEmpty()) {
+                model.setRowCount(0);
+                for (Complaint c : duplicates) {
+                    model.addRow(new Object[] {
+                            c.getId(), c.getTitle(),
+                            c.getCategory(), c.getPriority(), c.getStatus()
+                    });
+                }
             } else {
-                JOptionPane.showMessageDialog(this, "No duplicates found.");
+                JOptionPane.showMessageDialog(this, "No duplicate complaints found");
             }
         }
     }

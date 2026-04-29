@@ -7,22 +7,30 @@ public class RabinKarpService {
 
     private final int PRIME = 101;
 
-    public boolean isDuplicate(String desc, Collection<Complaint> complaints) {
+    private String normalize(String s) {
+        if (s == null) return "";
+        return s.toLowerCase().trim().replaceAll("\\s+", " ");
+    }
 
-        if (desc == null) return false;
+    public List<Complaint> getDuplicates(Complaint target, Collection<Complaint> complaints) {
+        List<Complaint> duplicates = new ArrayList<>();
+        if (target == null || target.getDescription() == null) return duplicates;
 
-        String pattern = desc.trim().toLowerCase();
+        String pattern = normalize(target.getDescription());
         long hash = computeHash(pattern);
 
         for (Complaint c : complaints) {
-            String text = c.getDescription().trim().toLowerCase();
+            if (c.getId() == target.getId()) continue;
+            if (c.getDescription() == null) continue;
+
+            String text = normalize(c.getDescription());
 
             if (computeHash(text) == hash && text.equals(pattern)) {
-                return true;
+                duplicates.add(c);
             }
         }
 
-        return false;
+        return duplicates;
     }
 
     private long computeHash(String s) {

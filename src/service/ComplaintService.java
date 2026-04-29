@@ -68,33 +68,6 @@ public class ComplaintService {
         return null;
     }
 
-    // // GRAPH / BFS: Detect related complaints (same category)
-    // public List<Complaint> getRelatedComplaints(Complaint start,
-    // Collection<Complaint> all) {
-    // List<Complaint> related = new ArrayList<>();
-    // Queue<Complaint> q = new LinkedList<>();
-    // Set<Integer> visited = new HashSet<>();
-    //
-    // q.add(start);
-    // visited.add(start.getId());
-    //
-    // while (!q.isEmpty()) {
-    // Complaint curr = q.poll();
-    // if (curr.getId() != start.getId()) {
-    // related.add(curr);
-    // }
-    //
-    // for (Complaint c : all) {
-    // if (!visited.contains(c.getId()) && c.getCategory() != null &&
-    // c.getCategory().equals(curr.getCategory())) {
-    // visited.add(c.getId());
-    // q.add(c);
-    // }
-    // }
-    // }
-    // return related;
-    // }
-
     // STATUS MANAGEMENT: Ensure transitions (NEW -> IN_PROGRESS -> RESOLVED ->
     // ESCALATED)
     public void updateStatus(Complaint c, String newStatus) {

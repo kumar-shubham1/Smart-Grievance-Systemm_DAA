@@ -11,9 +11,11 @@ public class TopKService {
                 new PriorityQueue<>(Comparator.comparingDouble(Complaint::getPriority));
 
         for (Complaint c : complaints) {
-            minHeap.add(c);
-            if (minHeap.size() > k) {
-                minHeap.poll();
+            if (!"RESOLVED".equals(c.getStatus())) {
+                minHeap.add(c);
+                if (minHeap.size() > k) {
+                    minHeap.poll();
+                }
             }
         }
 

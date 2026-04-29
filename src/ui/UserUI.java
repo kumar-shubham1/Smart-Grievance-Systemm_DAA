@@ -122,10 +122,16 @@ public class UserUI extends JFrame {
         refreshBtn.setForeground(Color.WHITE);
         refreshBtn.setFocusPainted(false);
 
+        JButton feedbackBtn = new JButton("Give Feedback");
+        feedbackBtn.setBackground(new Color(40, 167, 69));
+        feedbackBtn.setForeground(Color.WHITE);
+        feedbackBtn.setFocusPainted(false);
+
         JPanel btnPanel = new JPanel();
         btnPanel.setBackground(new Color(50, 50, 60));
         btnPanel.add(submitBtn);
         btnPanel.add(refreshBtn);
+        btnPanel.add(feedbackBtn);
 
         formPanel.add(btnPanel, gbc);
 
@@ -188,6 +194,51 @@ public class UserUI extends JFrame {
 
         // 🔄 REFRESH
         refreshBtn.addActionListener(e -> loadTable());
+
+        // 💬 FEEDBACK
+        feedbackBtn.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(null, "Select complaint first!");
+                return;
+            }
+
+            String status = (String) tableModel.getValueAt(selectedRow, 4);
+
+            if (!status.equals("RESOLVED")) {
+                JOptionPane.showMessageDialog(null, 
+                    "Feedback allowed only for resolved complaints");
+                return;
+            }
+
+            String feedbackMsg = JOptionPane.showInputDialog(
+                null,
+                "Enter your feedback:"
+            );
+
+            if (feedbackMsg == null || feedbackMsg.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Feedback required!");
+                return;
+            }
+
+            int choice = JOptionPane.showConfirmDialog(
+                null,
+                "Are you satisfied with resolution?",
+                "Feedback",
+                JOptionPane.YES_NO_OPTION
+            );
+
+            if (choice == JOptionPane.YES_OPTION) {
+                JOptionPane.showMessageDialog(null, "Thank you for your feedback!");
+            } else if (choice == JOptionPane.NO_OPTION) {
+                int id = Integer.parseInt(table.getValueAt(selectedRow, 0).toString());
+                new ComplaintDAO().updateStatus(id, "REOPENED");
+                JOptionPane.showMessageDialog(null, "Complaint reopened!");
+            }
+
+            System.out.println("Feedback: " + feedbackMsg);
+            loadTable();
+        });
 
         loadTable();
 
